@@ -1,0 +1,27 @@
+# hadoop
+package com.iitjobs;
+
+import java.sql.*;
+
+public class ConnectDatabase {
+
+	public static void main(String[] args) throws SQLException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		try{
+			
+		
+		Class.forName("com.mysql.jdbc.Driver"); 
+
+		Connection con=DriverManager.getConnection("jdbc:mysql://nn01.itversity.com/retail_db","retail_dba","itversity");
+		Statement stmt=con.createStatement();  
+		ResultSet rs=stmt.executeQuery("select * from customers limit 10"); 
+		
+		while(rs.next()){
+			for(int i=1;i<=rs.getMetaData().getColumnCount();i++){
+				System.out.println("\t");
+			System.out.println(rs.getString(i)+"\t");
+			}
+		}
+		con.close();
+    }
+    }
