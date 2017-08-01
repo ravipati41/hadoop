@@ -1,0 +1,42 @@
+
+Employee Table
+
+id    salary
+----------------
+1   100000
+2   200000
+3   300000
+4   400000
+5   500000
+6   600000
+
+salary <= 200k --> Small
+400k => salary > 200k --> Medium
+salary > 400k --> Large 
+
+Find the no. of employees for each bucket?
+
+Bucket number_of_employees
+-----------------------------------------
+Small       2
+Medium   2
+Large       2
+
+
+
+solution in spark:
+
+[hadooptrainingiit@gw01 ~]$ spark-shell
+scala> import org.apache.spark.sql._
+scala> sqlContext.sql("create table input1(id int,salary int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' lines terminated by '\n' stored as textfile")
+scala> sqlContext.sql("load data inpath '/user/hadooptrainingiit/satish/hivelab/employeedetails.txt' overwrite into table input1")
+scala> val df1=sqlContext.sql("select * from input1")
+scala> df1.show()
+scala> sqlContext.sql("create table bucket1(bucket String,id int,salary int) row format delimited fields terminated by '\t' stored as textfile")
+scala> sqlContext.sql("insert overwrite table bucket1 select if(salary<=200000,'small',if(salary<=400000,'medium','large')) as bucket,id,salary from input1")
+scala> val df2=sqlContext.sql("select bucket,count(id) from bucket1 group by bucket")
+df2.show().
+
+
+solution in hive:
+ same queries we enterd in spark;
