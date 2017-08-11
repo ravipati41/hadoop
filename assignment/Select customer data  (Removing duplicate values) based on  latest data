@@ -1,0 +1,38 @@
+Q)I want to clean the below customer data which has duplicate data for same 'id'. Pick the customer data for the latest date if there are duplicates
+
+Customer Table
+
+id    Revenue   Modified date(Month-Year format as a string column)
+----------------------------------
+1   100000     Jan-2017
+2   200000     Jul-2017
+3   300000     Oct-2017
+1   400000     Nov-2017
+5   500000     Jan-2017
+6   600000     FebD-2017
+2   500000     Dec-2017
+
+
+Solution:
+1)create table customer(id int,revenue int,mdate String) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' stored as textfile;
+2)load data inpath '/user/hadooptrainingiit/satish/hivelab/customer.txt' overwrite into table customer;
+3)hive (testdb)> desc customer;
+OK
+id                      int                                         
+revenue                 int                                         
+mdate                   string 
+4)select * from customer;
+4)create table customer13 as select id,revenue,cast(substring(from_unixtime(unix_timestamp(mdate,'MMM-yyyy')),1,10) as date) as timestamp1 from custom
+er;
+
+5)hive (testdb)> desc customer13;
+OK
+id                      int                                         
+revenue                 int                                         
+timestamp1              date 
+6)select * from customer13;
+
+
+
+7)select a.id,c.revenue,a.timestamp2 from customer13 c,(select id,max(timestamp1) as timestamp2 from customer13 group by id) a where c.id=a.id and c.t
+imestamp1=a.timestamp2;
