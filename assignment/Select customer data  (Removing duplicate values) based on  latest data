@@ -36,3 +36,9 @@ timestamp1              date
 
 7)select a.id,c.revenue,a.timestamp2 from customer13 c,(select id,max(timestamp1) as timestamp2 from customer13 group by id) a where c.id=a.id and c.t
 imestamp1=a.timestamp2;
+output:
+1       400000  2017-11-01
+2       500000  2017-12-01
+3       300000  2017-10-01
+5       500000  2017-01-01
+6       600000  2017-02-01
