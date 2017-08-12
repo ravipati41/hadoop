@@ -13,7 +13,36 @@ id    Revenue   Modified date(Month-Year format as a string column)
 2   500000     Dec-2017
 
 
+
 Solution:
+
+spark:
+1)import org.apache.spark.sql._
+2)scala> sqlContext.sql("create table customerold(id int,revenue int,mdate String) row format delimited fields terminated by ',' lines terminated by '\n' stored as t
+extfile")
+3)scala> val df=sqlContext.sql("select * from customerold")
+4)scala>df.show()
+5)scala>sqlContext.sql("load data inpath '/user/hadooptrainingiit/satish/hivelab/customer.txt' overwrite into table customerold")
+6)scala> sqlContext.sql("create table customernew as select id,revenue,cast(substring(from_unixtime(unix_timestamp(mdate,'MMM-yyyy')),1,10) as date) as newmdate  fro
+m customerold")
+7)scala>val df=sqlContext.sql("select * from customernew")
+8)scala>df.show()
+
+9)scala> val output=sqlContext.sql("select a.id,c.revenue,a.latestdate from customernew c,(select id,max(newmdate) as latestdate from customernew group by id) a wher
+e c.id=a.id and c.newmdate=a.latestdate")
+
+10)scala>output.show();
++---+-------+----------+
+| id|revenue|latestdate|
++---+-------+----------+
+|  3| 300000|2017-10-01|
+|  1| 400000|2017-11-01|
+|  5| 500000|2017-01-01|
+|  6| 600000|2017-02-01|
+|  2| 500000|2017-12-01|
++---+-------+----------+
+
+Hive:
 1)create table customer(id int,revenue int,mdate String) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' stored as textfile;
 2)load data inpath '/user/hadooptrainingiit/satish/hivelab/customer.txt' overwrite into table customer;
 3)hive (testdb)> desc customer;
