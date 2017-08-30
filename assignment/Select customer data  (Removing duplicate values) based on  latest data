@@ -71,3 +71,83 @@ output:
 3       300000  2017-10-01
 5       500000  2017-01-01
 6       600000  2017-02-01
+
+
+
+
+(or)using spark data Frame
+scala> case class input1(id:Int,salary:Int,modified_date:String)
+
+scala> val dfInput1=sc.textFile("/user/hadooptrainingiit/satish/hivelab/input1.txt").map(lines=>lines.split(" ")).map(p=>input1(p(0).trim.toInt,p(1).trim.toInt,p(2
+))).toDF();
+
+scala> dfInput1.show();
++---+------+-------------+
+| id|salary|modified_date|
++---+------+-------------+
+|  1|100000|     Jan-2017|
+|  2|200000|     Jul-2017|
+|  3|300000|     Oct-2017|
+|  1|400000|     Nov-2017|
+|  5|500000|     Jan-2017|
+|  6|600000|     Feb-2017|
+|  2|500000|     Dec-2017|
++---+------+-------------+
+
+
+
+scala> val df1=dfInput1.withColumn("new_date",to_date(unix_timestamp($"modified_date","MMM-yyyy").cast("timestamp")))
+
+scla>df1.show();
++---+------+-------------+----------+
+| id|salary|modified_date|  new_date|
++---+------+-------------+----------+
+|  1|100000|     Jan-2017|2017-01-01|
+|  2|200000|     Jul-2017|2017-07-01|
+|  3|300000|     Oct-2017|2017-10-01|
+|  1|400000|     Nov-2017|2017-11-01|
+|  5|500000|     Jan-2017|2017-01-01|
+|  6|600000|     Feb-2017|2017-02-01|
+|  2|500000|     Dec-2017|2017-12-01|
++---+------+-------------+----------+
+
+
+scala> val df2=df1.groupBy($"id").agg(max($"new_date"))
+
+scala>df2.show()
++---+-------------+
+| id|max(new_date)|
++---+-------------+
+|  1|   2017-11-01|
+|  2|   2017-12-01|
+|  3|   2017-10-01|
+|  5|   2017-01-01|
+|  6|   2017-02-01|
++---+-------------+
+
+scala> val df3 = df1.join(df2,df1("id")===df2("id") && df1("new_date")===df2("max(new_date)")).select(df1("id"),df1("salary"),df1("new_date"))
+
+scala>df3.show()
++---+------+----------+
+| id|salary|  new_date|
++---+------+----------+
+|  3|300000|2017-10-01|
+|  5|500000|2017-01-01|
+|  2|500000|2017-12-01|
+|  6|600000|2017-02-01|
+|  1|400000|2017-11-01|
++---+------+----------+
+
+scala> val df3 = df1.join(df2,df1("id")===df2("id") && df1("new_date")===df2("max(new_date)")).select(df1("id"),df1("salary"),df1("modified_date"))
+
+scala>df3.show()
++---+------+-------------+
+| id|salary|modified_date|
++---+------+-------------+
+|  3|300000|     Oct-2017|
+|  5|500000|     Jan-2017|
+|  2|500000|     Dec-2017|
+|  6|600000|     Feb-2017|
+|  1|400000|     Nov-2017|
++---+------+-------------+
+
