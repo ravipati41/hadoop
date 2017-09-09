@@ -28,4 +28,11 @@ ny      4000    5000    NULL
 
 
 (spark)
+1)import org.apache.spark.sql.hive._
+2)val hivecontext=new HiveContext(sc);
+3)scala> val input=hivecontext.read.table("satishdb.input");
+4)val input=hivecontext.sql("select * from satishdb.input");
+5)input.show();
+6)scala> val output=input.groupBy("location").pivot("metrix").sum("value");
+7)output.show();
 
