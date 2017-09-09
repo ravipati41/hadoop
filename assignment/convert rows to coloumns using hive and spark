@@ -1,0 +1,31 @@
+Input
+Location             Metric                            Value
+CA          ACTUALKWH           1000
+CA          SOLDKVA             2000
+CA          SOLDKVAR            3000
+NY          ACTUALKWH           4000
+NY          SOLDKVA             3000
+
+Output
+Location          ACTUALKWH     SOLDKVA     SOLDKVAR
+CA           1000          2000        3000
+NY           4000          3000        NULL
+solution:
+(hive)
+1)hive (satishdb)> select * from input;
+OK
+ca      actualkwh       1000
+ca      soldkva 2000
+ca      soldkvar        3000
+ny      actualkwh       4000
+ny      soldkva 5000
+
+2)hive (satishdb)> select location,max(case when metrix='actualkwh' then value end) as actualkwh,max(case when metrix='soldkva' then value end) as soldkva,max(case w
+hen metrix='soldkvar' then value end) as soldkvar from input group by location;
+OK
+ca      1000    2000    3000
+ny      4000    5000    NULL
+
+
+(spark)
+
